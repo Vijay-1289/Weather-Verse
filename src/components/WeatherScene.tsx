@@ -10,31 +10,47 @@ interface WeatherSceneProps {
   loading: boolean;
 }
 
-// Rain particles component
+// Realistic 2D-style rain particles
 const RainParticles = () => {
   const particles = useRef<THREE.Points>(null);
-  const particleCount = 500;
+  const particleCount = 800;
   
-  const { positions, geometry } = useMemo(() => {
+  const { positions, velocities } = useMemo(() => {
     const pos = new Float32Array(particleCount * 3);
+    const vel = new Float32Array(particleCount);
+    
     for (let i = 0; i < particleCount * 3; i += 3) {
-      pos[i] = (Math.random() - 0.5) * 20;     // x
-      pos[i + 1] = Math.random() * 20;         // y
-      pos[i + 2] = (Math.random() - 0.5) * 20; // z
+      pos[i] = (Math.random() - 0.5) * 30;     // x - wider spread
+      pos[i + 1] = Math.random() * 25 + 5;     // y - start above scene
+      pos[i + 2] = (Math.random() - 0.5) * 25; // z
+      vel[i / 3] = Math.random() * 0.1 + 0.15; // individual fall speeds
     }
     
-    const geom = new THREE.BufferGeometry();
-    geom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    
-    return { positions: pos, geometry: geom };
+    return { positions: pos, velocities: vel };
   }, []);
+
+  const geometry = useMemo(() => {
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geom;
+  }, [positions]);
 
   useFrame(() => {
     if (particles.current?.geometry?.attributes?.position) {
       const pos = particles.current.geometry.attributes.position.array as Float32Array;
-      for (let i = 1; i < pos.length; i += 3) {
-        pos[i] -= 0.1; // Fall speed
-        if (pos[i] < -10) pos[i] = 10; // Reset position
+      
+      for (let i = 0; i < particleCount; i++) {
+        const idx = i * 3;
+        pos[idx + 1] -= velocities[i]; // Fall with individual speed
+        
+        // Add slight wind effect
+        pos[idx] += Math.sin(Date.now() * 0.001 + i) * 0.01;
+        
+        // Reset particle when it hits ground
+        if (pos[idx + 1] < -5) {
+          pos[idx + 1] = 20 + Math.random() * 5;
+          pos[idx] = (Math.random() - 0.5) * 30;
+        }
       }
       particles.current.geometry.attributes.position.needsUpdate = true;
     }
@@ -42,39 +58,122 @@ const RainParticles = () => {
 
   return (
     <points ref={particles} geometry={geometry}>
-      <pointsMaterial size={0.05} color="#87CEEB" transparent opacity={0.6} />
+      <pointsMaterial 
+        size={0.03} 
+        color="#4A90E2" 
+        transparent 
+        opacity={0.7}
+        sizeAttenuation={false}
+      />
     </points>
   );
 };
 
-// Cloud component
+// Realistic 2D-style snow particles
+const SnowParticles = () => {
+  const particles = useRef<THREE.Points>(null);
+  const particleCount = 400;
+  
+  const { positions, velocities } = useMemo(() => {
+    const pos = new Float32Array(particleCount * 3);
+    const vel = new Float32Array(particleCount * 2);
+    
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      pos[i] = (Math.random() - 0.5) * 35;
+      pos[i + 1] = Math.random() * 25 + 5;
+      pos[i + 2] = (Math.random() - 0.5) * 30;
+      vel[(i / 3) * 2] = Math.random() * 0.02 + 0.02; // fall speed
+      vel[(i / 3) * 2 + 1] = Math.random() * 0.5; // drift phase
+    }
+    
+    return { positions: pos, velocities: vel };
+  }, []);
+
+  const geometry = useMemo(() => {
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geom;
+  }, [positions]);
+
+  useFrame((state) => {
+    if (particles.current?.geometry?.attributes?.position) {
+      const pos = particles.current.geometry.attributes.position.array as Float32Array;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const idx = i * 3;
+        const velIdx = i * 2;
+        
+        // Gentle falling
+        pos[idx + 1] -= velocities[velIdx];
+        
+        // Realistic drifting motion
+        pos[idx] += Math.sin(state.clock.elapsedTime + velocities[velIdx + 1]) * 0.015;
+        pos[idx + 2] += Math.cos(state.clock.elapsedTime * 0.5 + velocities[velIdx + 1]) * 0.01;
+        
+        // Reset when hitting ground
+        if (pos[idx + 1] < -5) {
+          pos[idx + 1] = 20 + Math.random() * 5;
+          pos[idx] = (Math.random() - 0.5) * 35;
+          pos[idx + 2] = (Math.random() - 0.5) * 30;
+        }
+      }
+      particles.current.geometry.attributes.position.needsUpdate = true;
+    }
+  });
+
+  return (
+    <points ref={particles} geometry={geometry}>
+      <pointsMaterial 
+        size={0.08} 
+        color="#FFFFFF" 
+        transparent 
+        opacity={0.8}
+        sizeAttenuation={false}
+      />
+    </points>
+  );
+};
+
+// More realistic 3D clouds with natural movement
 const AnimatedCloud = ({ position }: { position: [number, number, number] }) => {
   const cloudRef = useRef<THREE.Group>(null);
   
   useFrame((state) => {
     if (cloudRef.current) {
-      cloudRef.current.position.x = position[0] + Math.sin(state.clock.elapsedTime * 0.5) * 0.5;
-      cloudRef.current.rotation.y += 0.005;
+      // Gentle horizontal drift
+      cloudRef.current.position.x = position[0] + Math.sin(state.clock.elapsedTime * 0.2) * 1.5;
+      cloudRef.current.position.z = position[2] + Math.cos(state.clock.elapsedTime * 0.15) * 0.8;
+      
+      // Subtle vertical bobbing
+      cloudRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 0.3) * 0.3;
+      
+      // Very slow rotation
+      cloudRef.current.rotation.y += 0.002;
     }
   });
 
   return (
     <group ref={cloudRef} position={position}>
+      {/* Main cloud body with realistic proportions */}
       <mesh position={[0, 0, 0]}>
+        <sphereGeometry args={[1.2, 16, 16]} />
+        <meshStandardMaterial color="#F0F8FF" transparent opacity={0.9} />
+      </mesh>
+      <mesh position={[1.2, 0.3, 0.2]}>
         <sphereGeometry args={[0.8, 16, 16]} />
-        <meshStandardMaterial color="#ffffff" transparent opacity={0.8} />
+        <meshStandardMaterial color="#F5F5F5" transparent opacity={0.85} />
       </mesh>
-      <mesh position={[0.7, 0.2, 0]}>
+      <mesh position={[-0.9, 0.2, -0.1]}>
+        <sphereGeometry args={[0.7, 16, 16]} />
+        <meshStandardMaterial color="#F8F8FF" transparent opacity={0.8} />
+      </mesh>
+      <mesh position={[0.5, 0.6, 0.1]}>
         <sphereGeometry args={[0.6, 16, 16]} />
-        <meshStandardMaterial color="#ffffff" transparent opacity={0.7} />
+        <meshStandardMaterial color="#FFFAFA" transparent opacity={0.75} />
       </mesh>
-      <mesh position={[-0.6, 0.1, 0]}>
+      <mesh position={[-0.3, 0.5, 0.3]}>
         <sphereGeometry args={[0.5, 16, 16]} />
-        <meshStandardMaterial color="#ffffff" transparent opacity={0.7} />
-      </mesh>
-      <mesh position={[0.3, 0.4, 0]}>
-        <sphereGeometry args={[0.4, 16, 16]} />
-        <meshStandardMaterial color="#ffffff" transparent opacity={0.6} />
+        <meshStandardMaterial color="#F0F0F0" transparent opacity={0.7} />
       </mesh>
     </group>
   );
@@ -333,8 +432,8 @@ const WeatherScene: React.FC<WeatherSceneProps> = ({ weather, landmark, loading 
   const getBackgroundColor = () => {
     switch (weather) {
       case 'rain': return '#4A5568';
-      case 'clouds': return '#718096';
-      case 'snow': return '#E2E8F0';
+      case 'clouds': return '#87CEEB';
+      case 'snow': return '#F0F8FF';
       case 'clear': return '#87CEEB';
       default: return '#87CEEB';
     }
@@ -342,9 +441,9 @@ const WeatherScene: React.FC<WeatherSceneProps> = ({ weather, landmark, loading 
 
   const getLighting = () => {
     switch (weather) {
-      case 'rain': return 0.3;
-      case 'clouds': return 0.5;
-      case 'snow': return 0.7;
+      case 'rain': return 0.4;
+      case 'clouds': return 0.6;
+      case 'snow': return 0.8;
       case 'clear': return 1;
       default: return 1;
     }
@@ -368,26 +467,32 @@ const WeatherScene: React.FC<WeatherSceneProps> = ({ weather, landmark, loading 
       >
         <color attach="background" args={[getBackgroundColor()]} />
         
-        <ambientLight intensity={0.4} />
+        <ambientLight intensity={0.5} />
         <directionalLight 
           position={[10, 10, 5]} 
           intensity={getLighting()} 
           castShadow
+          shadow-mapSize-width={2048}
+          shadow-mapSize-height={2048}
         />
         
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
-          <planeGeometry args={[20, 20]} />
+        {/* Ground plane */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]} receiveShadow>
+          <planeGeometry args={[30, 30]} />
           <meshStandardMaterial color="#90EE90" />
         </mesh>
         
         <LandmarkComponent />
         
+        {/* Weather effects */}
         {weather === 'rain' && <RainParticles />}
+        {weather === 'snow' && <SnowParticles />}
         {weather === 'clouds' && (
           <>
-            <AnimatedCloud position={[-3, 3, -2]} />
-            <AnimatedCloud position={[4, 4, -3]} />
-            <AnimatedCloud position={[1, 5, -4]} />
+            <AnimatedCloud position={[-4, 6, -3]} />
+            <AnimatedCloud position={[5, 7, -4]} />
+            <AnimatedCloud position={[2, 8, -5]} />
+            <AnimatedCloud position={[-2, 6.5, -2]} />
           </>
         )}
         
