@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Thermometer, Droplets, Wind, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import WeatherScene from './WeatherScene';
 import { getWeatherData, WeatherData } from '../services/weatherService';
 import { getLocationData, LocationData } from '../data/locations';
+import GoogleEarthView from './GoogleEarthView';
 
 const WeatherApp = () => {
   const [location, setLocation] = useState('Mumbai');
@@ -53,7 +53,7 @@ const WeatherApp = () => {
             🌤️ WeatherVerse
           </h1>
           <p className="text-xl text-blue-100 animate-fade-in">
-            Explore the world's weather in 3D
+            Explore the world's weather in 3D with real satellite imagery
           </p>
         </div>
 
@@ -94,11 +94,11 @@ const WeatherApp = () => {
           </CardContent>
         </Card>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6">
           {/* 3D Scene */}
           <Card className="backdrop-blur-sm bg-white/10 border-white/20 overflow-hidden">
             <CardContent className="p-0">
-              <div className="h-96 lg:h-[500px] relative">
+              <div className="h-96 lg:h-[400px] relative">
                 <WeatherScene 
                   weather={weatherData?.weather[0].main.toLowerCase() || 'clear'}
                   landmark={locationData?.landmark || 'gateway'}
@@ -108,6 +108,24 @@ const WeatherApp = () => {
                   <div className="absolute bottom-4 left-4 text-white">
                     <p className="text-lg font-semibold">{locationData.name}</p>
                     <p className="text-sm opacity-80">{locationData.description}</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Real-time Satellite View */}
+          <Card className="backdrop-blur-sm bg-white/10 border-white/20 overflow-hidden">
+            <CardContent className="p-0">
+              <div className="h-96 lg:h-[400px] relative">
+                {!loading && locationData ? (
+                  <GoogleEarthView 
+                    location={locationData.name}
+                    coordinates={locationData.coordinates}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-blue-200">
+                    <div className="text-white text-xl">Loading satellite view...</div>
                   </div>
                 )}
               </div>
