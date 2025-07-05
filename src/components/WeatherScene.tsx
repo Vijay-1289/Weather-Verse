@@ -1,7 +1,7 @@
 
 import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Text, Box, Sphere, Plane } from '@react-three/drei';
+import { OrbitControls, Text } from '@react-three/drei';
 import * as THREE from 'three';
 
 interface WeatherSceneProps {
@@ -13,20 +13,24 @@ interface WeatherSceneProps {
 // Rain particles component
 const RainParticles = () => {
   const particles = useRef<THREE.Points>(null);
-  const particleCount = 1000;
+  const particleCount = 500;
   
-  const positions = useMemo(() => {
+  const { positions, geometry } = useMemo(() => {
     const pos = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount * 3; i += 3) {
       pos[i] = (Math.random() - 0.5) * 20;     // x
       pos[i + 1] = Math.random() * 20;         // y
       pos[i + 2] = (Math.random() - 0.5) * 20; // z
     }
-    return pos;
+    
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    
+    return { positions: pos, geometry: geom };
   }, []);
 
   useFrame(() => {
-    if (particles.current && particles.current.geometry.attributes.position) {
+    if (particles.current?.geometry?.attributes?.position) {
       const pos = particles.current.geometry.attributes.position.array as Float32Array;
       for (let i = 1; i < pos.length; i += 3) {
         pos[i] -= 0.1; // Fall speed
@@ -37,13 +41,7 @@ const RainParticles = () => {
   });
 
   return (
-    <points ref={particles}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[positions, 3]}
-        />
-      </bufferGeometry>
+    <points ref={particles} geometry={geometry}>
       <pointsMaterial size={0.05} color="#87CEEB" transparent opacity={0.6} />
     </points>
   );
@@ -62,18 +60,22 @@ const AnimatedCloud = ({ position }: { position: [number, number, number] }) => 
 
   return (
     <group ref={cloudRef} position={position}>
-      <Sphere args={[0.8, 16, 16]} position={[0, 0, 0]}>
+      <mesh position={[0, 0, 0]}>
+        <sphereGeometry args={[0.8, 16, 16]} />
         <meshStandardMaterial color="#ffffff" transparent opacity={0.8} />
-      </Sphere>
-      <Sphere args={[0.6, 16, 16]} position={[0.7, 0.2, 0]}>
+      </mesh>
+      <mesh position={[0.7, 0.2, 0]}>
+        <sphereGeometry args={[0.6, 16, 16]} />
         <meshStandardMaterial color="#ffffff" transparent opacity={0.7} />
-      </Sphere>
-      <Sphere args={[0.5, 16, 16]} position={[-0.6, 0.1, 0]}>
+      </mesh>
+      <mesh position={[-0.6, 0.1, 0]}>
+        <sphereGeometry args={[0.5, 16, 16]} />
         <meshStandardMaterial color="#ffffff" transparent opacity={0.7} />
-      </Sphere>
-      <Sphere args={[0.4, 16, 16]} position={[0.3, 0.4, 0]}>
+      </mesh>
+      <mesh position={[0.3, 0.4, 0]}>
+        <sphereGeometry args={[0.4, 16, 16]} />
         <meshStandardMaterial color="#ffffff" transparent opacity={0.6} />
-      </Sphere>
+      </mesh>
     </group>
   );
 };
@@ -82,18 +84,22 @@ const AnimatedCloud = ({ position }: { position: [number, number, number] }) => 
 const GatewayOfIndia = () => {
   return (
     <group position={[0, -2, 0]}>
-      <Box args={[4, 0.5, 3]} position={[0, 0, 0]}>
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[4, 0.5, 3]} />
         <meshStandardMaterial color="#8B7355" />
-      </Box>
-      <Box args={[3, 4, 2]} position={[0, 2.25, 0]}>
+      </mesh>
+      <mesh position={[0, 2.25, 0]}>
+        <boxGeometry args={[3, 4, 2]} />
         <meshStandardMaterial color="#D2B48C" />
-      </Box>
-      <Box args={[2, 3, 0.5]} position={[0, 1.5, 1]}>
+      </mesh>
+      <mesh position={[0, 1.5, 1]}>
+        <boxGeometry args={[2, 3, 0.5]} />
         <meshStandardMaterial color="#8B7355" />
-      </Box>
-      <Sphere args={[0.8, 16, 16]} position={[0, 4.5, 0]}>
+      </mesh>
+      <mesh position={[0, 4.5, 0]}>
+        <sphereGeometry args={[0.8, 16, 16]} />
         <meshStandardMaterial color="#CD853F" />
-      </Sphere>
+      </mesh>
       <Text
         position={[0, -0.8, 1.6]}
         fontSize={0.3}
@@ -110,24 +116,30 @@ const GatewayOfIndia = () => {
 const EiffelTower = () => {
   return (
     <group position={[0, -2, 0]}>
-      <Box args={[0.2, 2, 0.2]} position={[-1, 1, -1]}>
+      <mesh position={[-1, 1, -1]}>
+        <boxGeometry args={[0.2, 2, 0.2]} />
         <meshStandardMaterial color="#4A4A4A" />
-      </Box>
-      <Box args={[0.2, 2, 0.2]} position={[1, 1, -1]}>
+      </mesh>
+      <mesh position={[1, 1, -1]}>
+        <boxGeometry args={[0.2, 2, 0.2]} />
         <meshStandardMaterial color="#4A4A4A" />
-      </Box>
-      <Box args={[0.2, 2, 0.2]} position={[-1, 1, 1]}>
+      </mesh>
+      <mesh position={[-1, 1, 1]}>
+        <boxGeometry args={[0.2, 2, 0.2]} />
         <meshStandardMaterial color="#4A4A4A" />
-      </Box>
-      <Box args={[0.2, 2, 0.2]} position={[1, 1, 1]}>
+      </mesh>
+      <mesh position={[1, 1, 1]}>
+        <boxGeometry args={[0.2, 2, 0.2]} />
         <meshStandardMaterial color="#4A4A4A" />
-      </Box>
-      <Box args={[0.3, 3, 0.3]} position={[0, 3.5, 0]}>
+      </mesh>
+      <mesh position={[0, 3.5, 0]}>
+        <boxGeometry args={[0.3, 3, 0.3]} />
         <meshStandardMaterial color="#4A4A4A" />
-      </Box>
-      <Box args={[0.1, 1, 0.1]} position={[0, 5.5, 0]}>
+      </mesh>
+      <mesh position={[0, 5.5, 0]}>
+        <boxGeometry args={[0.1, 1, 0.1]} />
         <meshStandardMaterial color="#4A4A4A" />
-      </Box>
+      </mesh>
       <Text
         position={[0, -0.8, 2]}
         fontSize={0.3}
@@ -144,21 +156,26 @@ const EiffelTower = () => {
 const StatueOfLiberty = () => {
   return (
     <group position={[0, -2, 0]}>
-      <Box args={[2, 1, 2]} position={[0, 0.5, 0]}>
+      <mesh position={[0, 0.5, 0]}>
+        <boxGeometry args={[2, 1, 2]} />
         <meshStandardMaterial color="#8B7355" />
-      </Box>
-      <Box args={[0.8, 3, 0.8]} position={[0, 2.5, 0]}>
+      </mesh>
+      <mesh position={[0, 2.5, 0]}>
+        <boxGeometry args={[0.8, 3, 0.8]} />
         <meshStandardMaterial color="#40E0D0" />
-      </Box>
-      <Sphere args={[0.4, 16, 16]} position={[0, 4.2, 0]}>
+      </mesh>
+      <mesh position={[0, 4.2, 0]}>
+        <sphereGeometry args={[0.4, 16, 16]} />
         <meshStandardMaterial color="#40E0D0" />
-      </Sphere>
-      <Box args={[0.1, 1, 0.1]} position={[0.6, 4.8, 0]}>
+      </mesh>
+      <mesh position={[0.6, 4.8, 0]}>
+        <boxGeometry args={[0.1, 1, 0.1]} />
         <meshStandardMaterial color="#FFD700" />
-      </Box>
-      <Sphere args={[0.2, 16, 16]} position={[0.6, 5.3, 0]}>
+      </mesh>
+      <mesh position={[0.6, 5.3, 0]}>
+        <sphereGeometry args={[0.2, 16, 16]} />
         <meshStandardMaterial color="#FFA500" />
-      </Sphere>
+      </mesh>
       <Text
         position={[0, -0.3, 1.5]}
         fontSize={0.25}
@@ -175,21 +192,26 @@ const StatueOfLiberty = () => {
 const TokyoTower = () => {
   return (
     <group position={[0, -2, 0]}>
-      <Box args={[0.3, 4, 0.3]} position={[0, 2, 0]}>
+      <mesh position={[0, 2, 0]}>
+        <boxGeometry args={[0.3, 4, 0.3]} />
         <meshStandardMaterial color="#FF4500" />
-      </Box>
-      <Box args={[2, 0.2, 0.2]} position={[0, 1, 0]}>
+      </mesh>
+      <mesh position={[0, 1, 0]}>
+        <boxGeometry args={[2, 0.2, 0.2]} />
         <meshStandardMaterial color="#FFFFFF" />
-      </Box>
-      <Box args={[1.5, 0.2, 0.2]} position={[0, 2.5, 0]}>
+      </mesh>
+      <mesh position={[0, 2.5, 0]}>
+        <boxGeometry args={[1.5, 0.2, 0.2]} />
         <meshStandardMaterial color="#FFFFFF" />
-      </Box>
-      <Box args={[1, 0.2, 0.2]} position={[0, 3.5, 0]}>
+      </mesh>
+      <mesh position={[0, 3.5, 0]}>
+        <boxGeometry args={[1, 0.2, 0.2]} />
         <meshStandardMaterial color="#FFFFFF" />
-      </Box>
-      <Box args={[0.1, 1.5, 0.1]} position={[0, 4.75, 0]}>
+      </mesh>
+      <mesh position={[0, 4.75, 0]}>
+        <boxGeometry args={[0.1, 1.5, 0.1]} />
         <meshStandardMaterial color="#FF4500" />
-      </Box>
+      </mesh>
       <Text
         position={[0, -0.8, 1.8]}
         fontSize={0.3}
@@ -206,15 +228,18 @@ const TokyoTower = () => {
 const BigBen = () => {
   return (
     <group position={[0, -2, 0]}>
-      <Box args={[1.5, 5, 1.5]} position={[0, 2.5, 0]}>
+      <mesh position={[0, 2.5, 0]}>
+        <boxGeometry args={[1.5, 5, 1.5]} />
         <meshStandardMaterial color="#D2B48C" />
-      </Box>
-      <Sphere args={[0.6, 16, 16]} position={[0, 4, 0.8]}>
+      </mesh>
+      <mesh position={[0, 4, 0.8]}>
+        <sphereGeometry args={[0.6, 16, 16]} />
         <meshStandardMaterial color="#FFFFFF" />
-      </Sphere>
-      <Box args={[0.3, 1.5, 0.3]} position={[0, 5.75, 0]}>
+      </mesh>
+      <mesh position={[0, 5.75, 0]}>
+        <boxGeometry args={[0.3, 1.5, 0.3]} />
         <meshStandardMaterial color="#8B7355" />
-      </Box>
+      </mesh>
       <Text
         position={[0, -0.8, 1.8]}
         fontSize={0.3}
@@ -231,18 +256,22 @@ const BigBen = () => {
 const BurjKhalifa = () => {
   return (
     <group position={[0, -2, 0]}>
-      <Box args={[1.5, 1, 1.5]} position={[0, 0.5, 0]}>
+      <mesh position={[0, 0.5, 0]}>
+        <boxGeometry args={[1.5, 1, 1.5]} />
         <meshStandardMaterial color="#C0C0C0" />
-      </Box>
-      <Box args={[1, 6, 1]} position={[0, 3.5, 0]}>
+      </mesh>
+      <mesh position={[0, 3.5, 0]}>
+        <boxGeometry args={[1, 6, 1]} />
         <meshStandardMaterial color="#E6E6FA" />
-      </Box>
-      <Box args={[0.6, 2, 0.6]} position={[0, 7, 0]}>
+      </mesh>
+      <mesh position={[0, 7, 0]}>
+        <boxGeometry args={[0.6, 2, 0.6]} />
         <meshStandardMaterial color="#E6E6FA" />
-      </Box>
-      <Box args={[0.1, 1.5, 0.1]} position={[0, 8.75, 0]}>
+      </mesh>
+      <mesh position={[0, 8.75, 0]}>
+        <boxGeometry args={[0.1, 1.5, 0.1]} />
         <meshStandardMaterial color="#FFD700" />
-      </Box>
+      </mesh>
       <Text
         position={[0, -0.8, 1.8]}
         fontSize={0.3}
@@ -259,18 +288,22 @@ const BurjKhalifa = () => {
 const SydneyOperaHouse = () => {
   return (
     <group position={[0, -2, 0]}>
-      <Box args={[4, 0.3, 3]} position={[0, 0.15, 0]}>
+      <mesh position={[0, 0.15, 0]}>
+        <boxGeometry args={[4, 0.3, 3]} />
         <meshStandardMaterial color="#8B7355" />
-      </Box>
-      <Sphere args={[1.2, 16, 8]} position={[-0.8, 1.5, 0]} scale={[1, 1.5, 0.8]}>
+      </mesh>
+      <mesh position={[-0.8, 1.5, 0]} scale={[1, 1.5, 0.8]}>
+        <sphereGeometry args={[1.2, 16, 8]} />
         <meshStandardMaterial color="#FFFFFF" />
-      </Sphere>
-      <Sphere args={[1, 16, 8]} position={[0.8, 1.3, 0]} scale={[1, 1.3, 0.8]}>
+      </mesh>
+      <mesh position={[0.8, 1.3, 0]} scale={[1, 1.3, 0.8]}>
+        <sphereGeometry args={[1, 16, 8]} />
         <meshStandardMaterial color="#FFFFFF" />
-      </Sphere>
-      <Sphere args={[0.8, 16, 8]} position={[0, 1.8, -0.5]} scale={[1, 1.2, 0.6]}>
+      </mesh>
+      <mesh position={[0, 1.8, -0.5]} scale={[1, 1.2, 0.6]}>
+        <sphereGeometry args={[0.8, 16, 8]} />
         <meshStandardMaterial color="#FFFFFF" />
-      </Sphere>
+      </mesh>
       <Text
         position={[0, -0.6, 2]}
         fontSize={0.25}
@@ -327,7 +360,12 @@ const WeatherScene: React.FC<WeatherSceneProps> = ({ weather, landmark, loading 
 
   return (
     <div className="w-full h-full">
-      <Canvas camera={{ position: [0, 2, 8], fov: 60 }}>
+      <Canvas 
+        camera={{ position: [0, 2, 8], fov: 60 }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(getBackgroundColor());
+        }}
+      >
         <color attach="background" args={[getBackgroundColor()]} />
         
         <ambientLight intensity={0.4} />
@@ -337,9 +375,10 @@ const WeatherScene: React.FC<WeatherSceneProps> = ({ weather, landmark, loading 
           castShadow
         />
         
-        <Plane args={[20, 20]} rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
+          <planeGeometry args={[20, 20]} />
           <meshStandardMaterial color="#90EE90" />
-        </Plane>
+        </mesh>
         
         <LandmarkComponent />
         
