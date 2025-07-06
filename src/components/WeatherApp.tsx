@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { getWeatherData, WeatherData } from '../services/weatherService';
 import { getLocationData, LocationData } from '../data/locations';
-import GoogleEarthView from './GoogleEarthView';
+import PlaceInfo from './PlaceInfo';
 import WeatherEffects from './WeatherEffects';
 
 const WeatherApp = () => {
@@ -143,29 +143,11 @@ const WeatherApp = () => {
         </Card>
 
         <div className="grid lg:grid-cols-2 gap-6">
-          {/* Satellite View */}
-          <Card className="backdrop-blur-lg bg-white/20 border-white/30 overflow-hidden shadow-2xl">
-            <CardContent className="p-0">
-              <div className="h-96 lg:h-[400px] relative">
-                {!loading && locationData ? (
-                  <GoogleEarthView 
-                    location={locationData.name}
-                    coordinates={locationData.coordinates}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-blue-200/50 backdrop-blur-sm">
-                    <div className="text-white text-xl drop-shadow-lg">Loading satellite view...</div>
-                  </div>
-                )}
-                {locationData && (
-                  <div className="absolute bottom-4 left-4 text-white drop-shadow-lg">
-                    <p className="text-lg font-semibold">{locationData.name}</p>
-                    <p className="text-sm opacity-80">{locationData.description}</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          {/* Place Information */}
+          <PlaceInfo 
+            location={location}
+            coordinates={locationData?.coordinates}
+          />
 
           {/* Weather Info */}
           <div className="space-y-6">

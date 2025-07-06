@@ -1,5 +1,4 @@
-
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface WeatherEffectsProps {
   weatherCondition: string;
@@ -8,12 +7,19 @@ interface WeatherEffectsProps {
 
 const WeatherEffects: React.FC<WeatherEffectsProps> = ({ weatherCondition, isNight }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [audioEnabled, setAudioEnabled] = useState(false);
+  const [showAudioPrompt, setShowAudioPrompt] = useState(true);
 
   useEffect(() => {
     // Stop any existing audio
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+    }
+
+    // Only play audio if user has enabled it
+    if (!audioEnabled) {
+      return;
     }
 
     // Create and play appropriate ambient sound
@@ -40,7 +46,17 @@ const WeatherEffects: React.FC<WeatherEffectsProps> = ({ weatherCondition, isNig
       audioRef.current = new Audio(audioSrc);
       audioRef.current.loop = true;
       audioRef.current.volume = 0.3;
-      audioRef.current.play().catch(console.error);
+      
+      // Try to play audio with user interaction
+      const playAudio = async () => {
+        try {
+          await audioRef.current?.play();
+        } catch (error) {
+          console.log('Audio autoplay blocked. User interaction required.');
+        }
+      };
+      
+      playAudio();
     }
 
     return () => {
@@ -48,7 +64,20 @@ const WeatherEffects: React.FC<WeatherEffectsProps> = ({ weatherCondition, isNig
         audioRef.current.pause();
       }
     };
-  }, [weatherCondition]);
+  }, [weatherCondition, audioEnabled]);
+
+  const enableAudio = () => {
+    setAudioEnabled(true);
+    setShowAudioPrompt(false);
+  };
+
+  const disableAudio = () => {
+    setAudioEnabled(false);
+    setShowAudioPrompt(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+  };
 
   const renderRainEffect = () => (
     <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -286,42 +315,66 @@ const WeatherEffects: React.FC<WeatherEffectsProps> = ({ weatherCondition, isNig
   return (
     <>
       {renderWeatherEffect()}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          25% { transform: translateY(-10px) translateX(5px); }
-          50% { transform: translateY(-5px) translateX(-5px); }
-          75% { transform: translateY(-15px) translateX(3px); }
-        }
-        
-        @keyframes drift {
-          0% { transform: translateX(-100px); }
-          100% { transform: translateX(calc(100vw + 100px)); }
-        }
-        
-        @keyframes sunRay {
-          0%, 100% { opacity: 0.3; transform: rotate(var(--rotation)) scale(1); }
-          50% { opacity: 0.8; transform: rotate(var(--rotation)) scale(1.1); }
-        }
-        
-        @keyframes snowfall {
-          0% { transform: translateY(-100px) rotate(0deg); }
-          100% { transform: translateY(calc(100vh + 100px)) rotate(360deg); }
-        }
-        
-        @keyframes lightning-flash {
-          0%, 90%, 100% { opacity: 0; }
-          5%, 10% { opacity: 1; }
-        }
-        
-        .lightning-flash {
-          animation: lightning-flash 3s infinite;
-        }
-        
-        .lightning-bolt {
-          animation: lightning-flash 0.1s infinite;
-        }
-      `}</style>
+      
+      {/* Audio Control Prompt */}
+      {showAudioPrompt && (
+        <div className="fixed top-4 right-4 z-50 bg-black/80 backdrop-blur-sm text-white p-4 rounded-lg border border-white/20 shadow-2xl">
+          <p className="text-sm mb-3">Enable weather sounds for immersive experience?</p>
+          <div className="flex gap-2">
+            <button
+              onClick={enableAudio}
+              className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-xs transition-colors"
+            >
+              Enable
+            </button>
+            <button
+              onClick={disableAudio}
+              className="px-3 py-1 bg-gray-600 hover:bg-gray-700 rounded text-xs transition-colors"
+            >
+              No Thanks
+            </button>
+          </div>
+        </div>
+      )}
+      
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @keyframes float {
+            0%, 100% { transform: translateY(0px) translateX(0px); }
+            25% { transform: translateY(-10px) translateX(5px); }
+            50% { transform: translateY(-5px) translateX(-5px); }
+            75% { transform: translateY(-15px) translateX(3px); }
+          }
+          
+          @keyframes drift {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+          }
+          
+          @keyframes sunRay {
+            0%, 100% { opacity: 0.3; transform: rotate(var(--rotation)) scale(1); }
+            50% { opacity: 0.8; transform: rotate(var(--rotation)) scale(1.1); }
+          }
+          
+          @keyframes snowfall {
+            0% { transform: translateY(-100px) rotate(0deg); }
+            100% { transform: translateY(calc(100vh + 100px)) rotate(360deg); }
+          }
+          
+          @keyframes lightning-flash {
+            0%, 90%, 100% { opacity: 0; }
+            5%, 10% { opacity: 1; }
+          }
+          
+          .lightning-flash {
+            animation: lightning-flash 3s infinite;
+          }
+          
+          .lightning-bolt {
+            animation: lightning-flash 0.1s infinite;
+          }
+        `
+      }} />
     </>
   );
 };
