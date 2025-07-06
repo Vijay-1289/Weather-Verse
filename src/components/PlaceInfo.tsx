@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Info, Camera, Globe, Loader2 } from 'lucide-react';
+import { MapPin, Camera, Globe, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface PlaceInfoProps {
@@ -270,19 +270,6 @@ const PlaceInfo: React.FC<PlaceInfoProps> = ({ location, coordinates }) => {
             <p className="text-sm text-white/90 mb-3 drop-shadow-md">
               {placeData.description}
             </p>
-            
-            {/* Interesting Fact */}
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/30">
-              <div className="flex items-start gap-2">
-                <Info className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-xs font-semibold text-yellow-300 mb-1">DID YOU KNOW?</p>
-                  <p className="text-sm text-white/95 leading-relaxed">
-                    {placeData.fact}
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
           
           {/* Top-right corner icon */}

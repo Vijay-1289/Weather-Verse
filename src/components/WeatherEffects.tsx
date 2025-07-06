@@ -7,8 +7,6 @@ interface WeatherEffectsProps {
 
 const WeatherEffects: React.FC<WeatherEffectsProps> = ({ weatherCondition, isNight }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [audioEnabled, setAudioEnabled] = useState(false);
-  const [showAudioPrompt, setShowAudioPrompt] = useState(true);
 
   useEffect(() => {
     // Stop any existing audio
@@ -17,10 +15,7 @@ const WeatherEffects: React.FC<WeatherEffectsProps> = ({ weatherCondition, isNig
       audioRef.current.currentTime = 0;
     }
 
-    // Only play audio if user has enabled it
-    if (!audioEnabled) {
-      return;
-    }
+
 
     // Create and play appropriate ambient sound
     let audioSrc = '';
@@ -64,20 +59,9 @@ const WeatherEffects: React.FC<WeatherEffectsProps> = ({ weatherCondition, isNig
         audioRef.current.pause();
       }
     };
-  }, [weatherCondition, audioEnabled]);
+  }, [weatherCondition]);
 
-  const enableAudio = () => {
-    setAudioEnabled(true);
-    setShowAudioPrompt(false);
-  };
 
-  const disableAudio = () => {
-    setAudioEnabled(false);
-    setShowAudioPrompt(false);
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-  };
 
   const renderRainEffect = () => (
     <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -316,26 +300,7 @@ const WeatherEffects: React.FC<WeatherEffectsProps> = ({ weatherCondition, isNig
     <>
       {renderWeatherEffect()}
       
-      {/* Audio Control Prompt */}
-      {showAudioPrompt && (
-        <div className="fixed top-4 right-4 z-50 bg-black/80 backdrop-blur-sm text-white p-4 rounded-lg border border-white/20 shadow-2xl">
-          <p className="text-sm mb-3">Enable weather sounds for immersive experience?</p>
-          <div className="flex gap-2">
-            <button
-              onClick={enableAudio}
-              className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-xs transition-colors"
-            >
-              Enable
-            </button>
-            <button
-              onClick={disableAudio}
-              className="px-3 py-1 bg-gray-600 hover:bg-gray-700 rounded text-xs transition-colors"
-            >
-              No Thanks
-            </button>
-          </div>
-        </div>
-      )}
+
       
       <style dangerouslySetInnerHTML={{
         __html: `
