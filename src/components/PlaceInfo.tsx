@@ -12,8 +12,6 @@ interface PlaceInfoProps {
 
 interface PlaceData {
   name: string;
-  image: string;
-  fact: string;
   description: string;
 }
 
@@ -26,73 +24,32 @@ const PlaceInfo: React.FC<PlaceInfoProps> = ({ location, coordinates }) => {
   const fallbackData: Record<string, PlaceData> = {
     'mumbai': {
       name: 'Gateway of India',
-      image: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=800&h=600&fit=crop',
-      fact: 'The Gateway of India was built to commemorate the visit of King George V and Queen Mary to Mumbai in 1911.',
       description: 'Iconic archway overlooking the Arabian Sea, built in Indo-Saracenic style architecture.'
     },
     'paris': {
       name: 'Eiffel Tower',
-      image: 'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=800&h=600&fit=crop',
-      fact: 'The Eiffel Tower was originally intended to be a temporary structure for the 1889 World\'s Fair.',
       description: 'Iron lattice tower on the Champ de Mars, standing 324 meters tall as Paris\' most iconic landmark.'
     },
     'new york': {
       name: 'Statue of Liberty',
-      image: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=800&h=600&fit=crop',
-      fact: 'The Statue of Liberty was a gift from France to the United States, designed by Frédéric Auguste Bartholdi.',
       description: 'Neoclassical sculpture on Liberty Island, symbolizing freedom and democracy.'
     },
     'tokyo': {
       name: 'Tokyo Tower',
-      image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&h=600&fit=crop',
-      fact: 'Tokyo Tower was inspired by the Eiffel Tower but is painted orange and white for air safety regulations.',
       description: 'Communications and observation tower, standing 333 meters tall in the heart of Tokyo.'
     },
     'london': {
       name: 'Big Ben',
-      image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&h=600&fit=crop',
-      fact: 'Big Ben is actually the nickname for the Great Bell of the Great Clock of Westminster, not the tower itself.',
       description: 'Great bell of the Great Clock of Westminster, located at the north end of the Houses of Parliament.'
     },
     'dubai': {
       name: 'Burj Khalifa',
-      image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop',
-      fact: 'Burj Khalifa is the world\'s tallest building at 828 meters, with 163 floors and the world\'s highest outdoor observation deck.',
       description: 'World\'s tallest building and structure, featuring stunning architecture and panoramic city views.'
     },
     'sydney': {
       name: 'Sydney Opera House',
-      image: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&h=600&fit=crop',
-      fact: 'The Sydney Opera House was designed by Danish architect Jørn Utzon and took 14 years to complete.',
       description: 'Multi-venue performing arts centre, famous for its distinctive sail-like roof design.'
     }
-  };
-
-  // Generate dynamic facts based on location characteristics
-  const generateDynamicFact = (locationName: string, isIndianVillage: boolean = false): string => {
-    const facts = [
-      `${locationName} has a rich cultural heritage that spans generations, with traditions passed down through families.`,
-      `The local cuisine of ${locationName} features unique flavors and traditional cooking methods that reflect the region's agricultural bounty.`,
-      `${locationName} is known for its warm hospitality and close-knit community where everyone knows their neighbors.`,
-      `The landscape around ${locationName} showcases the natural beauty of the region, with scenic views that change with the seasons.`,
-      `${locationName} has a fascinating history that includes stories of resilience, growth, and community spirit.`,
-      `Local festivals and celebrations in ${locationName} bring the community together and showcase regional traditions.`,
-      `The people of ${locationName} are known for their hard work and dedication to preserving their cultural identity.`,
-      `${locationName} offers a peaceful escape from city life, with its serene environment and traditional way of living.`
-    ];
-
-    if (isIndianVillage) {
-      const indianVillageFacts = [
-        `${locationName} is a charming village that embodies the essence of rural India, with its traditional architecture and agricultural lifestyle.`,
-        `The village of ${locationName} is known for its traditional farming practices and sustainable living methods passed down through generations.`,
-        `${locationName} showcases the beauty of Indian village life, with its community wells, temple gatherings, and traditional festivals.`,
-        `In ${locationName}, you'll find the heart of India's rural culture, where ancient traditions meet modern aspirations.`,
-        `The village of ${locationName} is a testament to India's agricultural heritage and the strength of its rural communities.`
-      ];
-      return indianVillageFacts[Math.floor(Math.random() * indianVillageFacts.length)];
-    }
-
-    return facts[Math.floor(Math.random() * facts.length)];
   };
 
   // Generate dynamic description based on location
@@ -116,41 +73,6 @@ const PlaceInfo: React.FC<PlaceInfoProps> = ({ location, coordinates }) => {
       `A place with its own unique charm and cultural significance.`
     ];
     return descriptions[Math.floor(Math.random() * descriptions.length)];
-  };
-
-  // Generate image URL based on location
-  const generateImageUrl = (locationName: string, isIndianVillage: boolean = false): string => {
-    const baseUrl = 'https://images.unsplash.com/photo-';
-    
-    if (isIndianVillage) {
-      // Indian village themed images
-      const indianVillageImages = [
-        '1570168007204-dfb528c6958f', // Indian architecture
-        '1548013146-72479768bada',    // Rural India
-        '1511739001486-6bfe10ce785f', // Village life
-        '1540959733332-eab4deabeeaf', // Rural landscape
-        '1513635269975-59663e0ac1ad', // Traditional India
-        '1512453979798-5ea266f8880c', // Village scene
-        '1506973035872-a4ec16b8e8d9', // Rural beauty
-        '1449824913935-59a10b8d2000'  // Countryside
-      ];
-      const randomImage = indianVillageImages[Math.floor(Math.random() * indianVillageImages.length)];
-      return `${baseUrl}${randomImage}?w=800&h=600&fit=crop&q=${encodeURIComponent(locationName)}`;
-    }
-
-    // General location images
-    const generalImages = [
-      '1570168007204-dfb528c6958f', // Architecture
-      '1548013146-72479768bada',    // Landmarks
-      '1511739001486-6bfe10ce785f', // City views
-      '1540959733332-eab4deabeeaf', // Urban landscape
-      '1513635269975-59663e0ac1ad', // Buildings
-      '1512453979798-5ea266f8880c', // Cityscape
-      '1506973035872-a4ec16b8e8d9', // Urban beauty
-      '1449824913935-59a10b8d2000'  // General
-    ];
-    const randomImage = generalImages[Math.floor(Math.random() * generalImages.length)];
-    return `${baseUrl}${randomImage}?w=800&h=600&fit=crop&q=${encodeURIComponent(locationName)}`;
   };
 
   // Check if location is likely an Indian village
@@ -196,8 +118,6 @@ const PlaceInfo: React.FC<PlaceInfoProps> = ({ location, coordinates }) => {
           const isVillage = isIndianVillage(location);
           const generatedData: PlaceData = {
             name: location,
-            image: generateImageUrl(location, isVillage),
-            fact: generateDynamicFact(location, isVillage),
             description: generateDynamicDescription(location, isVillage)
           };
           
