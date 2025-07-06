@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Info, Camera, Globe } from 'lucide-react';
+import { MapPin, Info, Camera, Globe, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface PlaceInfoProps {
@@ -22,7 +22,7 @@ const PlaceInfo: React.FC<PlaceInfoProps> = ({ location, coordinates }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fallback data for popular cities
+  // Enhanced fallback data for popular cities
   const fallbackData: Record<string, PlaceData> = {
     'mumbai': {
       name: 'Gateway of India',
@@ -68,6 +68,118 @@ const PlaceInfo: React.FC<PlaceInfoProps> = ({ location, coordinates }) => {
     }
   };
 
+  // Generate dynamic facts based on location characteristics
+  const generateDynamicFact = (locationName: string, isIndianVillage: boolean = false): string => {
+    const facts = [
+      `${locationName} has a rich cultural heritage that spans generations, with traditions passed down through families.`,
+      `The local cuisine of ${locationName} features unique flavors and traditional cooking methods that reflect the region's agricultural bounty.`,
+      `${locationName} is known for its warm hospitality and close-knit community where everyone knows their neighbors.`,
+      `The landscape around ${locationName} showcases the natural beauty of the region, with scenic views that change with the seasons.`,
+      `${locationName} has a fascinating history that includes stories of resilience, growth, and community spirit.`,
+      `Local festivals and celebrations in ${locationName} bring the community together and showcase regional traditions.`,
+      `The people of ${locationName} are known for their hard work and dedication to preserving their cultural identity.`,
+      `${locationName} offers a peaceful escape from city life, with its serene environment and traditional way of living.`
+    ];
+
+    if (isIndianVillage) {
+      const indianVillageFacts = [
+        `${locationName} is a charming village that embodies the essence of rural India, with its traditional architecture and agricultural lifestyle.`,
+        `The village of ${locationName} is known for its traditional farming practices and sustainable living methods passed down through generations.`,
+        `${locationName} showcases the beauty of Indian village life, with its community wells, temple gatherings, and traditional festivals.`,
+        `In ${locationName}, you'll find the heart of India's rural culture, where ancient traditions meet modern aspirations.`,
+        `The village of ${locationName} is a testament to India's agricultural heritage and the strength of its rural communities.`
+      ];
+      return indianVillageFacts[Math.floor(Math.random() * indianVillageFacts.length)];
+    }
+
+    return facts[Math.floor(Math.random() * facts.length)];
+  };
+
+  // Generate dynamic description based on location
+  const generateDynamicDescription = (locationName: string, isIndianVillage: boolean = false): string => {
+    if (isIndianVillage) {
+      const descriptions = [
+        `A traditional Indian village known for its agricultural heritage and close-knit community.`,
+        `A peaceful rural settlement where traditional farming and cultural practices thrive.`,
+        `A charming village that represents the authentic rural lifestyle of India.`,
+        `A community where ancient traditions and modern aspirations coexist harmoniously.`,
+        `A village that showcases the beauty and simplicity of rural Indian life.`
+      ];
+      return descriptions[Math.floor(Math.random() * descriptions.length)];
+    }
+
+    const descriptions = [
+      `A vibrant community with rich cultural traditions and warm hospitality.`,
+      `A place where history meets modernity, creating a unique cultural tapestry.`,
+      `A location known for its distinctive character and local traditions.`,
+      `A community that celebrates its heritage while embracing the future.`,
+      `A place with its own unique charm and cultural significance.`
+    ];
+    return descriptions[Math.floor(Math.random() * descriptions.length)];
+  };
+
+  // Generate image URL based on location
+  const generateImageUrl = (locationName: string, isIndianVillage: boolean = false): string => {
+    const baseUrl = 'https://images.unsplash.com/photo-';
+    
+    if (isIndianVillage) {
+      // Indian village themed images
+      const indianVillageImages = [
+        '1570168007204-dfb528c6958f', // Indian architecture
+        '1548013146-72479768bada',    // Rural India
+        '1511739001486-6bfe10ce785f', // Village life
+        '1540959733332-eab4deabeeaf', // Rural landscape
+        '1513635269975-59663e0ac1ad', // Traditional India
+        '1512453979798-5ea266f8880c', // Village scene
+        '1506973035872-a4ec16b8e8d9', // Rural beauty
+        '1449824913935-59a10b8d2000'  // Countryside
+      ];
+      const randomImage = indianVillageImages[Math.floor(Math.random() * indianVillageImages.length)];
+      return `${baseUrl}${randomImage}?w=800&h=600&fit=crop&q=${encodeURIComponent(locationName)}`;
+    }
+
+    // General location images
+    const generalImages = [
+      '1570168007204-dfb528c6958f', // Architecture
+      '1548013146-72479768bada',    // Landmarks
+      '1511739001486-6bfe10ce785f', // City views
+      '1540959733332-eab4deabeeaf', // Urban landscape
+      '1513635269975-59663e0ac1ad', // Buildings
+      '1512453979798-5ea266f8880c', // Cityscape
+      '1506973035872-a4ec16b8e8d9', // Urban beauty
+      '1449824913935-59a10b8d2000'  // General
+    ];
+    const randomImage = generalImages[Math.floor(Math.random() * generalImages.length)];
+    return `${baseUrl}${randomImage}?w=800&h=600&fit=crop&q=${encodeURIComponent(locationName)}`;
+  };
+
+  // Check if location is likely an Indian village
+  const isIndianVillage = (locationName: string): boolean => {
+    const indianStates = [
+      'andhra pradesh', 'telangana', 'karnataka', 'tamil nadu', 'kerala',
+      'maharashtra', 'gujarat', 'rajasthan', 'madhya pradesh', 'uttar pradesh',
+      'bihar', 'west bengal', 'odisha', 'jharkhand', 'chhattisgarh',
+      'himachal pradesh', 'uttarakhand', 'punjab', 'haryana', 'delhi',
+      'jammu and kashmir', 'assam', 'manipur', 'meghalaya', 'nagaland',
+      'tripura', 'arunachal pradesh', 'mizoram', 'sikkim', 'goa'
+    ];
+
+    const locationLower = locationName.toLowerCase();
+    
+    // Check if it contains Indian state names
+    const hasIndianState = indianStates.some(state => locationLower.includes(state));
+    
+    // Check for common Indian village indicators
+    const villageIndicators = ['village', 'gram', 'palli', 'pura', 'nagar', 'pur', 'abad', 'garh'];
+    const hasVillageIndicator = villageIndicators.some(indicator => locationLower.includes(indicator));
+    
+    // Check for Telugu/Andhra Pradesh specific patterns
+    const teluguPatterns = ['palli', 'gudem', 'pet', 'peta', 'nagar', 'colony'];
+    const hasTeluguPattern = teluguPatterns.some(pattern => locationLower.includes(pattern));
+    
+    return hasIndianState || hasVillageIndicator || hasTeluguPattern;
+  };
+
   useEffect(() => {
     const fetchPlaceData = async () => {
       setLoading(true);
@@ -80,13 +192,16 @@ const PlaceInfo: React.FC<PlaceInfoProps> = ({ location, coordinates }) => {
         if (data) {
           setPlaceData(data);
         } else {
-          // For unknown locations, create a generic entry
-          setPlaceData({
+          // Generate dynamic data for any location
+          const isVillage = isIndianVillage(location);
+          const generatedData: PlaceData = {
             name: location,
-            image: `https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&q=${encodeURIComponent(location)}`,
-            fact: `Discover the unique charm and culture of ${location}, a city with its own fascinating history and traditions.`,
-            description: `Explore the local landmarks, cuisine, and cultural heritage that make ${location} special.`
-          });
+            image: generateImageUrl(location, isVillage),
+            fact: generateDynamicFact(location, isVillage),
+            description: generateDynamicDescription(location, isVillage)
+          };
+          
+          setPlaceData(generatedData);
         }
       } catch (err) {
         setError('Failed to load place information');
@@ -105,8 +220,9 @@ const PlaceInfo: React.FC<PlaceInfoProps> = ({ location, coordinates }) => {
         <CardContent className="p-0">
           <div className="h-96 lg:h-[400px] relative">
             <div className="w-full h-full flex items-center justify-center bg-blue-200/50 backdrop-blur-sm">
-              <div className="text-white text-xl drop-shadow-lg animate-pulse">
-                Loading place information...
+              <div className="text-white text-xl drop-shadow-lg flex items-center gap-2">
+                <Loader2 className="w-6 h-6 animate-spin" />
+                Discovering {location}...
               </div>
             </div>
           </div>

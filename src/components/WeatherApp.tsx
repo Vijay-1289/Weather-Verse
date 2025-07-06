@@ -82,7 +82,11 @@ const WeatherApp = () => {
   };
 
   const isNight = new Date().getHours() >= 18 || new Date().getHours() <= 6;
-  const popularCities = ['Mumbai', 'Paris', 'New York', 'Tokyo', 'London', 'Dubai', 'Sydney'];
+  const popularCities = [
+    'Mumbai', 'Hyderabad', 'Vijayawada', 'Visakhapatnam', 
+    'Guntur', 'Nellore', 'Chittoor', 'Anantapur',
+    'Paris', 'New York', 'Tokyo', 'London', 'Dubai', 'Sydney'
+  ];
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${getWeatherBackground()} relative overflow-hidden transition-all duration-1000 ease-in-out`}>
