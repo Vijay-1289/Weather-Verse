@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Camera, Globe, Loader2 } from 'lucide-react';
+import { MapPin, Globe, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface PlaceInfoProps {
@@ -216,14 +216,12 @@ const PlaceInfo: React.FC<PlaceInfoProps> = ({ location, coordinates }) => {
 
   if (loading) {
     return (
-      <Card className="backdrop-blur-lg bg-white/20 border-white/30 overflow-hidden shadow-2xl">
-        <CardContent className="p-0">
-          <div className="h-96 lg:h-[400px] relative">
-            <div className="w-full h-full flex items-center justify-center bg-blue-200/50 backdrop-blur-sm">
-              <div className="text-white text-xl drop-shadow-lg flex items-center gap-2">
-                <Loader2 className="w-6 h-6 animate-spin" />
-                Discovering {location}...
-              </div>
+      <Card className="backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-400 mx-auto mb-3" />
+              <p className="text-white text-lg">Discovering {location}...</p>
             </div>
           </div>
         </CardContent>
@@ -233,13 +231,14 @@ const PlaceInfo: React.FC<PlaceInfoProps> = ({ location, coordinates }) => {
 
   if (error || !placeData) {
     return (
-      <Card className="backdrop-blur-lg bg-white/20 border-white/30 overflow-hidden shadow-2xl">
-        <CardContent className="p-0">
-          <div className="h-96 lg:h-[400px] relative">
-            <div className="w-full h-full flex items-center justify-center bg-red-200/50 backdrop-blur-sm">
-              <div className="text-white text-xl drop-shadow-lg">
-                Unable to load place information
+      <Card className="backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="w-8 h-8 bg-red-400 rounded-full mx-auto mb-3 flex items-center justify-center">
+                <span className="text-white text-sm font-bold">!</span>
               </div>
+              <p className="text-white text-lg">Unable to load place information</p>
             </div>
           </div>
         </CardContent>
@@ -248,34 +247,47 @@ const PlaceInfo: React.FC<PlaceInfoProps> = ({ location, coordinates }) => {
   }
 
   return (
-    <Card className="backdrop-blur-lg bg-white/20 border-white/30 overflow-hidden shadow-2xl">
-      <CardContent className="p-0">
-        <div className="h-96 lg:h-[400px] relative group">
-          {/* Background Image */}
-          <div 
-            className="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-            style={{ backgroundImage: `url(${placeData.image})` }}
-          />
-          
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-          
-          {/* Content */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-            <div className="flex items-center gap-2 mb-2">
-              <MapPin className="w-5 h-5 text-yellow-400" />
-              <h3 className="text-2xl font-bold drop-shadow-lg">{placeData.name}</h3>
+    <Card className="backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
+      <CardContent className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="bg-blue-500/20 backdrop-blur-sm rounded-full p-3">
+            <MapPin className="w-6 h-6 text-blue-400" />
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold text-white drop-shadow-lg">{placeData.name}</h3>
+            <p className="text-sm text-white/70">Location Information</p>
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+            <div className="flex items-start gap-3">
+              <Globe className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-green-300 mb-1">ABOUT THIS PLACE</p>
+                <p className="text-white/90 leading-relaxed">
+                  {placeData.description}
+                </p>
+              </div>
             </div>
-            
-            <p className="text-sm text-white/90 mb-3 drop-shadow-md">
-              {placeData.description}
-            </p>
           </div>
           
-          {/* Top-right corner icon */}
-          <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm rounded-full p-2">
-            <Camera className="w-5 h-5 text-white" />
-          </div>
+          {coordinates && (
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+              <div className="flex items-start gap-3">
+                <div className="bg-purple-500/20 rounded-full p-2">
+                  <MapPin className="w-4 h-4 text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-purple-300 mb-1">COORDINATES</p>
+                  <p className="text-white/90">
+                    Latitude: {coordinates.lat.toFixed(4)}°N<br />
+                    Longitude: {coordinates.lon.toFixed(4)}°E
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
