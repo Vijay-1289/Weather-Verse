@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getWeatherData, WeatherData } from '../services/weatherService';
 import { getLocationData, LocationData } from '../data/locations';
 import GoogleEarthView from './GoogleEarthView';
+import WeatherEffects from './WeatherEffects';
 
 const WeatherApp = () => {
   const [location, setLocation] = useState('Mumbai');
@@ -52,27 +53,27 @@ const WeatherApp = () => {
       case 'rain':
       case 'drizzle':
         return isNight 
-          ? 'from-gray-800 via-gray-700 to-slate-900'
-          : 'from-gray-500 via-gray-600 to-gray-700';
+          ? 'from-gray-800 via-slate-700 to-blue-900'
+          : 'from-gray-400 via-blue-400 to-blue-600';
       case 'thunderstorm':
         return 'from-gray-900 via-purple-900 to-black';
       case 'snow':
         return isNight
           ? 'from-blue-900 via-indigo-800 to-slate-800'
-          : 'from-blue-100 via-blue-200 to-blue-300';
+          : 'from-blue-100 via-white to-blue-200';
       case 'clouds':
         return isNight
           ? 'from-gray-700 via-gray-600 to-gray-800'
-          : 'from-gray-300 via-gray-400 to-gray-500';
+          : 'from-gray-200 via-gray-300 to-gray-400';
       case 'clear':
         return isNight
           ? 'from-indigo-900 via-purple-900 to-black'
-          : 'from-blue-400 via-sky-500 to-cyan-400';
+          : 'from-yellow-200 via-orange-300 to-blue-400';
       case 'mist':
       case 'fog':
         return isNight
           ? 'from-gray-800 via-gray-700 to-gray-900'
-          : 'from-gray-400 via-gray-300 to-gray-400';
+          : 'from-gray-300 via-gray-200 to-gray-300';
       default:
         return isNight
           ? 'from-indigo-900 via-purple-900 to-black'
@@ -80,93 +81,18 @@ const WeatherApp = () => {
     }
   };
 
-  const getWeatherOverlay = () => {
-    if (!weatherData) return '';
-    
-    const weather = weatherData.weather[0].main.toLowerCase();
-    
-    switch (weather) {
-      case 'rain':
-      case 'drizzle':
-        return (
-          <div className="fixed inset-0 pointer-events-none">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/20 to-blue-900/40"></div>
-            {/* Rain effect */}
-            <div className="absolute inset-0 opacity-30">
-              {Array.from({ length: 100 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute w-px h-8 bg-blue-300 animate-pulse"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 2}s`,
-                    animationDuration: `${0.5 + Math.random() * 1}s`
-                  }}
-                ></div>
-              ))}
-            </div>
-          </div>
-        );
-      case 'thunderstorm':
-        return (
-          <div className="fixed inset-0 pointer-events-none">
-            <div className="absolute inset-0 bg-gradient-to-b from-purple-900/30 via-gray-900/40 to-black/50"></div>
-            {/* Lightning effect */}
-            <div className="absolute inset-0 animate-pulse opacity-20">
-              <div className="absolute top-10 left-1/4 w-1 h-20 bg-white transform rotate-12 animate-ping"></div>
-              <div className="absolute top-20 right-1/3 w-1 h-16 bg-white transform -rotate-45 animate-ping"></div>
-            </div>
-          </div>
-        );
-      case 'snow':
-        return (
-          <div className="fixed inset-0 pointer-events-none">
-            <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-blue-100/20 to-blue-200/30"></div>
-            {/* Snow effect */}
-            <div className="absolute inset-0 opacity-60">
-              {Array.from({ length: 50 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute w-2 h-2 bg-white rounded-full animate-bounce"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 3}s`,
-                    animationDuration: `${2 + Math.random() * 2}s`
-                  }}
-                ></div>
-              ))}
-            </div>
-          </div>
-        );
-      case 'clouds':
-        return (
-          <div className="fixed inset-0 pointer-events-none">
-            <div className="absolute inset-0 bg-gradient-to-b from-gray-200/20 via-gray-300/30 to-gray-400/20"></div>
-          </div>
-        );
-      case 'mist':
-      case 'fog':
-        return (
-          <div className="fixed inset-0 pointer-events-none">
-            <div className="absolute inset-0 bg-gradient-to-b from-gray-400/30 via-gray-300/40 to-gray-400/30"></div>
-            {/* Fog effect */}
-            <div className="absolute inset-0 opacity-40">
-              <div className="absolute inset-0 bg-gray-300/20 animate-pulse"></div>
-            </div>
-          </div>
-        );
-      default:
-        return '';
-    }
-  };
-
+  const isNight = new Date().getHours() >= 18 || new Date().getHours() <= 6;
   const popularCities = ['Mumbai', 'Paris', 'New York', 'Tokyo', 'London', 'Dubai', 'Sydney'];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${getWeatherBackground()} relative overflow-hidden`}>
-      {getWeatherOverlay()}
+    <div className={`min-h-screen bg-gradient-to-br ${getWeatherBackground()} relative overflow-hidden transition-all duration-1000 ease-in-out`}>
+      {/* Dynamic Weather Effects */}
+      {weatherData && (
+        <WeatherEffects 
+          weatherCondition={weatherData.weather[0].main} 
+          isNight={isNight}
+        />
+      )}
       
       <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}
