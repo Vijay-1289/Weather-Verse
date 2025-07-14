@@ -192,12 +192,18 @@ const WeatherApp = () => {
 
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Map Section replaces PlaceInfo */}
-          <div className="rounded-3xl overflow-hidden shadow-2xl ring-2 ring-blue-200/40 bg-white/20 backdrop-blur-lg min-h-[350px] flex items-center justify-center">
+          <div className="rounded-3xl overflow-hidden shadow-2xl ring-2 ring-blue-200/40 bg-white/20 backdrop-blur-lg min-h-[350px] flex items-center justify-center relative">
+            {/* Weather animation overlay above the map only */}
+            {weatherData && (
+              <div className="absolute inset-0 z-10 pointer-events-none">
+                <WeatherEffects weatherCondition={weatherData.weather[0].main} isNight={isNight} />
+              </div>
+            )}
             {locationData?.coordinates ? (
               <MapContainer
                 center={[locationData.coordinates.lat, locationData.coordinates.lon]}
                 zoom={12}
-                style={{ width: '100%', height: '350px', borderRadius: '1.5rem' }}
+                style={{ width: '100%', height: '350px', borderRadius: '1.5rem', zIndex: 1 }}
                 scrollWheelZoom={false}
               >
                 {/* Animate map flyTo on location/weather change */}
