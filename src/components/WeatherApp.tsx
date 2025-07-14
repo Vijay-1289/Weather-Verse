@@ -9,6 +9,24 @@ import { getLocationData, LocationData } from '../data/locations';
 import PlaceInfo from './PlaceInfo';
 import WeatherEffects from './WeatherEffects';
 
+const weatherEmojis: Record<string, string> = {
+  clear: '☀️',
+  clouds: '☁️',
+  rain: '🌧️',
+  drizzle: '🌦️',
+  thunderstorm: '⛈️',
+  snow: '❄️',
+  mist: '🌫️',
+  fog: '🌫️',
+  haze: '🌫️',
+  smoke: '💨',
+  dust: '🌪️',
+  sand: '🏜️',
+  ash: '🌋',
+  squall: '🌬️',
+  tornado: '🌪️',
+};
+
 const WeatherApp = () => {
   const [location, setLocation] = useState('Mumbai');
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
@@ -158,18 +176,26 @@ const WeatherApp = () => {
             {weatherData && (
               <>
                 {/* Current Weather */}
-                <Card className="backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
+                <Card className="backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl rounded-3xl ring-2 ring-pink-200/40 drop-shadow-cute">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <MapPin className="w-5 h-5 text-white/80" />
                         <h2 className="text-2xl font-bold text-white drop-shadow-lg">{location}</h2>
                       </div>
-                      <div className="text-right">
-                        <p className="text-4xl font-bold text-white drop-shadow-lg">
+                      <div className="text-right flex flex-col items-end">
+                        {/* Cute Weather Emoji with bounce animation */}
+                        <span
+                          className="text-5xl md:text-6xl mb-1 animate-bounce-cute"
+                          style={{ display: 'inline-block' }}
+                          aria-label={weatherData.weather[0].main}
+                        >
+                          {weatherEmojis[weatherData.weather[0].main.toLowerCase()] || '🌈'}
+                        </span>
+                        <p className="text-4xl font-bold text-white drop-shadow-lg font-cute">
                           {Math.round(weatherData.main.temp)}°C
                         </p>
-                        <p className="text-white/90 capitalize drop-shadow-sm">
+                        <p className="text-white/90 capitalize drop-shadow-sm font-cute">
                           {weatherData.weather[0].description}
                         </p>
                       </div>
@@ -254,3 +280,21 @@ const WeatherApp = () => {
 };
 
 export default WeatherApp;
+
+<style jsx global>{`
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+  .font-cute {
+    font-family: 'Fredoka One', cursive;
+    letter-spacing: 0.5px;
+  }
+  .drop-shadow-cute {
+    filter: drop-shadow(0 4px 24px rgba(255, 182, 193, 0.25));
+  }
+  @keyframes bounce-cute {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px) scale(1.1); }
+  }
+  .animate-bounce-cute {
+    animation: bounce-cute 1.6s infinite;
+  }
+`}</style>
