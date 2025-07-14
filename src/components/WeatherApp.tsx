@@ -8,6 +8,9 @@ import { getWeatherData, WeatherData } from '../services/weatherService';
 import { getLocationData, LocationData } from '../data/locations';
 import PlaceInfo from './PlaceInfo';
 import WeatherEffects from './WeatherEffects';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { useMap } from 'react-leaflet';
 
 const weatherEmojis: Record<string, string> = {
   clear: '☀️',
@@ -26,6 +29,29 @@ const weatherEmojis: Record<string, string> = {
   squall: '🌬️',
   tornado: '🌪️',
 };
+
+function MapFlyTo({ lat, lon, weather }: { lat: number; lon: number; weather: string }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!isNaN(lat) && !isNaN(lon)) {
+      let zoom = 12;
+      let duration = 1.5;
+      // Animate differently for some weather types
+      if (weather.toLowerCase() === 'thunderstorm') {
+        zoom = 13;
+        duration = 2.2;
+      } else if (weather.toLowerCase() === 'snow') {
+        zoom = 11;
+        duration = 2.5;
+      } else if (weather.toLowerCase() === 'rain') {
+        zoom = 12;
+        duration = 2.0;
+      }
+      map.flyTo([lat, lon], zoom, { animate: true, duration });
+    }
+  }, [lat, lon, weather, map]);
+  return null;
+}
 
 const WeatherApp = () => {
   const [location, setLocation] = useState('Mumbai');
@@ -165,11 +191,33 @@ const WeatherApp = () => {
         </Card>
 
         <div className="grid lg:grid-cols-2 gap-6">
-          {/* Place Information */}
-          <PlaceInfo 
-            location={location}
-            coordinates={locationData?.coordinates}
-          />
+          {/* Map Section replaces PlaceInfo */}
+          <div className="rounded-3xl overflow-hidden shadow-2xl ring-2 ring-blue-200/40 bg-white/20 backdrop-blur-lg min-h-[350px] flex items-center justify-center">
+            {locationData?.coordinates ? (
+              <MapContainer
+                center={[locationData.coordinates.lat, locationData.coordinates.lon]}
+                zoom={12}
+                style={{ width: '100%', height: '350px', borderRadius: '1.5rem' }}
+                scrollWheelZoom={false}
+              >
+                {/* Animate map flyTo on location/weather change */}
+                <MapFlyTo lat={locationData.coordinates.lat} lon={locationData.coordinates.lon} weather={weatherData?.weather[0].main || ''} />
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <Marker position={[locationData.coordinates.lat, locationData.coordinates.lon]}>
+                  <Popup>
+                    {location}
+                  </Popup>
+                </Marker>
+              </MapContainer>
+            ) : (
+              <div className="text-center w-full text-white/80 py-12">
+                <p>Map unavailable for this location.</p>
+              </div>
+            )}
+          </div>
 
           {/* Weather Info */}
           <div className="space-y-6">
@@ -281,7 +329,7 @@ const WeatherApp = () => {
 
 export default WeatherApp;
 
-<style jsx global>{`
+<style>{`
   @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
   .font-cute {
     font-family: 'Fredoka One', cursive;
