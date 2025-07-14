@@ -8,9 +8,7 @@ import { getWeatherData, WeatherData } from '../services/weatherService';
 import { getLocationData, LocationData } from '../data/locations';
 import PlaceInfo from './PlaceInfo';
 import WeatherEffects from './WeatherEffects';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import { useMap } from 'react-leaflet';
+import { GoogleMap as GoogleMapComponent, Marker as MarkerComponent, useJsApiLoader } from '@react-google-maps/api';
 
 const weatherEmojis: Record<string, string> = {
   clear: '☀️',
@@ -30,27 +28,32 @@ const weatherEmojis: Record<string, string> = {
   tornado: '🌪️',
 };
 
-function MapFlyTo({ lat, lon, weather }: { lat: number; lon: number; weather: string }) {
-  const map = useMap();
-  useEffect(() => {
-    if (!isNaN(lat) && !isNaN(lon)) {
-      let zoom = 12;
-      let duration = 1.5;
-      // Animate differently for some weather types
-      if (weather.toLowerCase() === 'thunderstorm') {
-        zoom = 13;
-        duration = 2.2;
-      } else if (weather.toLowerCase() === 'snow') {
-        zoom = 11;
-        duration = 2.5;
-      } else if (weather.toLowerCase() === 'rain') {
-        zoom = 12;
-        duration = 2.0;
-      }
-      map.flyTo([lat, lon], zoom, { animate: true, duration });
-    }
-  }, [lat, lon, weather, map]);
-  return null;
+function GoogleMapWrapper({ lat, lon, location }: { lat: number; lon: number; location: string }) {
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: "AIzaSyCiHALYSMfJtgJM-zgSMwSFUc-2spQ_D3M",
+  });
+  const center = { lat, lng: lon };
+  return isLoaded ? (
+    <GoogleMapComponent
+      center={center}
+      zoom={12}
+      mapContainerStyle={{ width: '100%', height: '350px', borderRadius: '1.5rem', zIndex: 1 }}
+      options={{
+        disableDefaultUI: true,
+        zoomControl: true,
+        gestureHandling: 'greedy',
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+      }}
+    >
+      <MarkerComponent position={center} title={location} />
+    </GoogleMapComponent>
+  ) : (
+    <div className="text-center w-full text-white/80 py-12">
+      <p>Loading map...</p>
+    </div>
+  );
 }
 
 const WeatherApp = () => {
@@ -200,24 +203,11 @@ const WeatherApp = () => {
               </div>
             )}
             {locationData?.coordinates ? (
-              <MapContainer
-                center={[locationData.coordinates.lat, locationData.coordinates.lon]}
-                zoom={12}
-                style={{ width: '100%', height: '350px', borderRadius: '1.5rem', zIndex: 1 }}
-                scrollWheelZoom={false}
-              >
-                {/* Animate map flyTo on location/weather change */}
-                <MapFlyTo lat={locationData.coordinates.lat} lon={locationData.coordinates.lon} weather={weatherData?.weather[0].main || ''} />
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Marker position={[locationData.coordinates.lat, locationData.coordinates.lon]}>
-                  <Popup>
-                    {location}
-                  </Popup>
-                </Marker>
-              </MapContainer>
+              <GoogleMapWrapper
+                lat={locationData.coordinates.lat}
+                lon={locationData.coordinates.lon}
+                location={location}
+              />
             ) : (
               <div className="text-center w-full text-white/80 py-12">
                 <p>Map unavailable for this location.</p>
