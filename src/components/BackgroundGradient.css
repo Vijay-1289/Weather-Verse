@@ -1,0 +1,46 @@
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes cloudMove {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.background-gradient {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(270deg, #87CEEB, #FFC0CB, #87CEEB);
+  background-size: 600% 600%;
+  animation: gradientShift 30s ease infinite;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.background-gradient::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: url('https://www.transparenttextures.com/patterns/clouds.png') repeat-x;
+  opacity: 0.2;
+  animation: cloudMove 60s linear infinite;
+  pointer-events: none;
+}

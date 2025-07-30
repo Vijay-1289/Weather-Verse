@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getWeatherData, WeatherData } from '../services/weatherService';
 import { getLocationData, LocationData } from '../data/locations';
 import WeatherEffects from './WeatherEffects';
-import Background3D from './Background3D';
+import BackgroundGradient from './BackgroundGradient';
 const weatherEmojis: Record<string, string> = {
   clear: '☀️',
   clouds: '☁️',
@@ -107,8 +107,8 @@ const WeatherApp = () => {
 
   return (
     <>
-      {/* 3D Gradient Background */}
-      <Background3D />
+      {/* Animated Gradient Background */}
+      <BackgroundGradient />
       
       <div className="min-h-screen relative overflow-hidden transition-all duration-1000 ease-in-out z-10">
         {/* Dynamic Weather Effects */}
