@@ -77,7 +77,9 @@ const Background3D: React.FC = () => {
         camera={{ position: [0, 0, 5], fov: 75 }}
         gl={{ preserveDrawingBuffer: true }}
       >
-        <AnimatedBackground />
+        <Plane args={[100, 100]} position={[0, 0, -5]}>
+          <AnimatedBackground />
+        </Plane>
       </Canvas>
     </div>
   );
