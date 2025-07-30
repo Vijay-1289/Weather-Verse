@@ -73,11 +73,11 @@ const Background3D: React.FC = () => {
   return (
     <div className="fixed inset-0 z-0 w-full h-full">
       <Canvas 
-        style={{ width: '100vw', height: '100vh' }} 
+        style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }} 
         camera={{ position: [0, 0, 5], fov: 75 }}
         gl={{ preserveDrawingBuffer: true }}
       >
-        <Plane args={[100, 100]} position={[0, 0, -5]}>
+        <Plane args={[200, 200]} position={[0, 0, -5]}>
           <AnimatedBackground />
         </Plane>
       </Canvas>
