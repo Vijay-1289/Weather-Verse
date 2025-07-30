@@ -25,6 +25,11 @@ const GradientMaterial = shaderMaterial(
     uniform vec3 colorB;
     varying vec2 vUv;
     
+    // Simplex noise function (2D)
+    float noise(vec2 p) {
+      return fract(sin(dot(p ,vec2(12.9898,78.233))) * 43758.5453);
+    }
+    
     void main() {
       vec2 uv = vUv;
       
@@ -36,9 +41,9 @@ const GradientMaterial = shaderMaterial(
       // Mix colors based on gradient
       vec3 color = mix(colorA, colorB, gradient);
       
-      // Add some depth with subtle noise
-      float noise = sin(uv.x * 10.0) * cos(uv.y * 10.0) * 0.02;
-      color += noise;
+      // Add subtle moving cloud effect using noise
+      float cloud = noise(uv * 10.0 + vec2(time * 0.1, time * 0.1));
+      color += cloud * 0.1;
       
       gl_FragColor = vec4(color, 1.0);
     }
@@ -70,6 +75,7 @@ const Background3D: React.FC = () => {
       <Canvas 
         style={{ width: '100vw', height: '100vh' }} 
         camera={{ position: [0, 0, 5], fov: 75 }}
+        gl={{ preserveDrawingBuffer: true }}
       >
         <AnimatedBackground />
       </Canvas>
