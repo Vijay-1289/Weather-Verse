@@ -63,7 +63,7 @@ const WeatherApp = () => {
   const getWeatherBackground = () => {
     if (!weatherData) return 'from-blue-400 via-blue-500 to-blue-600';
     
-    const weather = weatherData.weather[0].main.toLowerCase();
+    const weather = weatherData.weather?.[0]?.main?.toLowerCase() || '';
     const isNight = new Date().getHours() >= 18 || new Date().getHours() <= 6;
     
     switch (weather) {
@@ -182,29 +182,29 @@ const WeatherApp = () => {
                         </div>
                         
                         <div className="text-8xl mb-4 drop-shadow-lg">
-                          {weatherEmojis[weatherData.weather[0].main.toLowerCase()] || '🌤️'}
+                        {weatherEmojis[weatherData.weather?.[0]?.main?.toLowerCase() || ''] || '🌤️'}
                         </div>
                         
                         <div className="text-6xl font-bold text-white drop-shadow-lg mb-2">
-                          {Math.round(weatherData.main.temp)}°C
+                          {Math.round(weatherData?.main?.temp || 0)}°C
                         </div>
                         
                         <p className="text-2xl text-white/90 capitalize font-medium mb-2">
-                          {weatherData.weather[0].description}
+                          {weatherData.weather?.[0]?.description || ''}
                         </p>
                         
                         <p className="text-lg text-white/70">
-                          Feels like {Math.round(weatherData.main.feels_like)}°C
+                          Feels like {Math.round(weatherData?.main?.feels_like || 0)}°C
                         </p>
                         
                         <div className="flex justify-center gap-6 mt-4 pt-4 border-t border-white/20">
                           <div className="text-center">
                             <p className="text-sm text-white/60 mb-1">High</p>
-                            <p className="text-xl font-semibold text-white">{Math.round(weatherData.main.temp_max)}°</p>
+                            <p className="text-xl font-semibold text-white">{Math.round(weatherData?.main?.temp_max || 0)}°</p>
                           </div>
                           <div className="text-center">
                             <p className="text-sm text-white/60 mb-1">Low</p>
-                            <p className="text-xl font-semibold text-white">{Math.round(weatherData.main.temp_min)}°</p>
+                            <p className="text-xl font-semibold text-white">{Math.round(weatherData?.main?.temp_min || 0)}°</p>
                           </div>
                         </div>
                       </div>
@@ -218,7 +218,7 @@ const WeatherApp = () => {
                       <CardContent className="p-6 text-center">
                         <Droplets className="w-8 h-8 text-blue-300 mx-auto mb-3" />
                         <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Humidity</p>
-                        <p className="text-2xl font-bold text-white">{weatherData.main.humidity}%</p>
+                        <p className="text-2xl font-bold text-white">{weatherData?.main?.humidity || 0}%</p>
                       </CardContent>
                     </Card>
 
@@ -227,7 +227,7 @@ const WeatherApp = () => {
                       <CardContent className="p-6 text-center">
                         <Wind className="w-8 h-8 text-green-300 mx-auto mb-3" />
                         <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Wind Speed</p>
-                        <p className="text-2xl font-bold text-white">{weatherData.wind.speed} m/s</p>
+                        <p className="text-2xl font-bold text-white">{weatherData?.wind?.speed || 0} m/s</p>
                       </CardContent>
                     </Card>
 
@@ -236,7 +236,7 @@ const WeatherApp = () => {
                       <CardContent className="p-6 text-center">
                         <Eye className="w-8 h-8 text-purple-300 mx-auto mb-3" />
                         <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Visibility</p>
-                        <p className="text-2xl font-bold text-white">{(weatherData.visibility / 1000).toFixed(1)} km</p>
+                        <p className="text-2xl font-bold text-white">{((weatherData?.visibility || 0) / 1000).toFixed(1)} km</p>
                       </CardContent>
                     </Card>
 
@@ -245,7 +245,7 @@ const WeatherApp = () => {
                       <CardContent className="p-6 text-center">
                         <div className="text-3xl mb-3">🌡️</div>
                         <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Pressure</p>
-                        <p className="text-2xl font-bold text-white">{weatherData.main.pressure} hPa</p>
+                        <p className="text-2xl font-bold text-white">{weatherData?.main?.pressure || 0} hPa</p>
                       </CardContent>
                     </Card>
 
@@ -254,7 +254,7 @@ const WeatherApp = () => {
                       <CardContent className="p-6 text-center">
                         <div className="text-3xl mb-3">🧭</div>
                         <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Wind Direction</p>
-                        <p className="text-2xl font-bold text-white">{weatherData.wind.deg || 0}°</p>
+                        <p className="text-2xl font-bold text-white">{weatherData?.wind?.deg || 0}°</p>
                       </CardContent>
                     </Card>
 
@@ -263,7 +263,7 @@ const WeatherApp = () => {
                       <CardContent className="p-6 text-center">
                         <div className="text-3xl mb-3">☁️</div>
                         <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Cloud Cover</p>
-                        <p className="text-2xl font-bold text-white">{weatherData.clouds?.all || 0}%</p>
+                        <p className="text-2xl font-bold text-white">{weatherData?.clouds?.all || 0}%</p>
                       </CardContent>
                     </Card>
                   </div>

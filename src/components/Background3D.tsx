@@ -49,6 +49,7 @@ extend({ GradientMaterial });
 
 function AnimatedBackground() {
   const materialRef = useRef<any>();
+  const gradientMaterial = React.useMemo(() => new GradientMaterial(), []);
 
   useFrame((state) => {
     if (materialRef.current) {
@@ -58,15 +59,18 @@ function AnimatedBackground() {
 
   return (
     <Plane args={[20, 20]} position={[0, 0, -5]}>
-      <primitive object={new GradientMaterial()} ref={materialRef} attach="material" />
+      <primitive object={gradientMaterial} ref={materialRef} attach="material" />
     </Plane>
   );
 }
 
 const Background3D: React.FC = () => {
   return (
-    <div className="fixed inset-0 z-0">
-      <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
+    <div className="fixed inset-0 z-0 w-full h-full">
+      <Canvas 
+        style={{ width: '100vw', height: '100vh' }} 
+        camera={{ position: [0, 0, 5], fov: 75 }}
+      >
         <AnimatedBackground />
       </Canvas>
     </div>
