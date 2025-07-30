@@ -71,7 +71,10 @@ function AnimatedBackground() {
 
 const Background3D: React.FC = () => {
   return (
-    <div className="fixed inset-0 z-0 w-full h-full">
+    <div 
+      className="fixed inset-0 z-0 w-full h-full" 
+      style={{ background: 'linear-gradient(180deg, #87CEEB 0%, #FFC0CB 100%)' }}
+    >
       <Canvas 
         style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }} 
         camera={{ position: [0, 0, 5], fov: 75 }}
