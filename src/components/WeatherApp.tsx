@@ -8,8 +8,6 @@ import { getWeatherData, WeatherData } from '../services/weatherService';
 import { getLocationData, LocationData } from '../data/locations';
 import PlaceInfo from './PlaceInfo';
 import WeatherEffects from './WeatherEffects';
-import { GoogleMap as GoogleMapComponent, Marker as MarkerComponent, useJsApiLoader } from '@react-google-maps/api';
-
 const weatherEmojis: Record<string, string> = {
   clear: '☀️',
   clouds: '☁️',
@@ -27,34 +25,6 @@ const weatherEmojis: Record<string, string> = {
   squall: '🌬️',
   tornado: '🌪️',
 };
-
-function GoogleMapWrapper({ lat, lon, location }: { lat: number; lon: number; location: string }) {
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyCiHALYSMfJtgJM-zgSMwSFUc-2spQ_D3M",
-  });
-  const center = { lat, lng: lon };
-  return isLoaded ? (
-    <GoogleMapComponent
-      center={center}
-      zoom={12}
-      mapContainerStyle={{ width: '100%', height: '350px', borderRadius: '1.5rem', zIndex: 1 }}
-      options={{
-        disableDefaultUI: true,
-        zoomControl: true,
-        gestureHandling: 'greedy',
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false,
-      }}
-    >
-      <MarkerComponent position={center} title={location} />
-    </GoogleMapComponent>
-  ) : (
-    <div className="text-center w-full text-white/80 py-12">
-      <p>Loading map...</p>
-    </div>
-  );
-}
 
 const WeatherApp = () => {
   const [location, setLocation] = useState('Mumbai');
@@ -193,113 +163,141 @@ const WeatherApp = () => {
           </CardContent>
         </Card>
 
-        <div className="grid lg:grid-cols-2 gap-6">
-          {/* Map Section replaces PlaceInfo */}
-          <div className="rounded-3xl overflow-hidden shadow-2xl ring-2 ring-blue-200/40 bg-white/20 backdrop-blur-lg min-h-[350px] flex items-center justify-center relative">
-            {/* Weather animation overlay above the map only */}
-            {weatherData && (
-              <div className="absolute inset-0 z-10 pointer-events-none">
-                <WeatherEffects weatherCondition={weatherData.weather[0].main} isNight={isNight} />
-              </div>
-            )}
-            {locationData?.coordinates ? (
-              <GoogleMapWrapper
-                lat={locationData.coordinates.lat}
-                lon={locationData.coordinates.lon}
-                location={location}
-              />
-            ) : (
-              <div className="text-center w-full text-white/80 py-12">
-                <p>Map unavailable for this location.</p>
-              </div>
-            )}
-          </div>
+        <div className="w-full space-y-6">
+          {/* Place Info Section */}
+          <PlaceInfo 
+            location={location}
+            coordinates={locationData?.coordinates}
+          />
 
           {/* Weather Info */}
           <div className="space-y-6">
             {weatherData && (
               <>
-                {/* Current Weather */}
-                <Card className="backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl rounded-3xl ring-2 ring-pink-200/40 drop-shadow-cute">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-5 h-5 text-white/80" />
-                        <h2 className="text-2xl font-bold text-white drop-shadow-lg">{location}</h2>
+                {/* Main Weather Display */}
+                <Card className="backdrop-blur-lg bg-white/15 border-white/20 shadow-2xl">
+                  <CardContent className="p-8">
+                    <div className="text-center mb-6">
+                      <div className="flex items-center justify-center gap-3 mb-4">
+                        <MapPin className="w-6 h-6 text-white/80" />
+                        <h2 className="text-3xl font-bold text-white drop-shadow-lg">{location}</h2>
                       </div>
-                      <div className="text-right flex flex-col items-end">
-                        {/* Cute Weather Emoji with bounce animation */}
-                        <span
-                          className="text-5xl md:text-6xl mb-1 animate-bounce-cute"
-                          style={{ display: 'inline-block' }}
-                          aria-label={weatherData.weather[0].main}
-                        >
-                          {weatherEmojis[weatherData.weather[0].main.toLowerCase()] || '🌈'}
-                        </span>
-                        <p className="text-4xl font-bold text-white drop-shadow-lg font-cute">
-                          {Math.round(weatherData.main.temp)}°C
-                        </p>
-                        <p className="text-white/90 capitalize drop-shadow-sm font-cute">
-                          {weatherData.weather[0].description}
-                        </p>
+                      
+                      <div className="text-8xl mb-4 drop-shadow-lg">
+                        {weatherEmojis[weatherData.weather[0].main.toLowerCase()] || '🌤️'}
                       </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-center gap-2 text-white">
-                        <Thermometer className="w-4 h-4 text-white/80" />
-                        <span className="text-sm drop-shadow-sm">Feels like {Math.round(weatherData.main.feels_like)}°C</span>
+                      
+                      <div className="text-6xl font-bold text-white drop-shadow-lg mb-2">
+                        {Math.round(weatherData.main.temp)}°C
                       </div>
-                      <div className="flex items-center gap-2 text-white">
-                        <Droplets className="w-4 h-4 text-white/80" />
-                        <span className="text-sm drop-shadow-sm">Humidity {weatherData.main.humidity}%</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-white">
-                        <Wind className="w-4 h-4 text-white/80" />
-                        <span className="text-sm drop-shadow-sm">Wind {weatherData.wind.speed} m/s</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-white">
-                        <Eye className="w-4 h-4 text-white/80" />
-                        <span className="text-sm drop-shadow-sm">Visibility {(weatherData.visibility / 1000).toFixed(1)} km</span>
+                      
+                      <p className="text-2xl text-white/90 capitalize font-medium mb-2">
+                        {weatherData.weather[0].description}
+                      </p>
+                      
+                      <p className="text-lg text-white/70">
+                        Feels like {Math.round(weatherData.main.feels_like)}°C
+                      </p>
+                      
+                      <div className="flex justify-center gap-6 mt-4 pt-4 border-t border-white/20">
+                        <div className="text-center">
+                          <p className="text-sm text-white/60 mb-1">High</p>
+                          <p className="text-xl font-semibold text-white">{Math.round(weatherData.main.temp_max)}°</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-white/60 mb-1">Low</p>
+                          <p className="text-xl font-semibold text-white">{Math.round(weatherData.main.temp_min)}°</p>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Additional Info */}
-                <Card className="backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-white mb-4 drop-shadow-lg">Weather Details</h3>
-                    <div className="grid grid-cols-2 gap-4 text-white">
-                      <div>
-                        <p className="text-sm text-white/80">Pressure</p>
-                        <p className="font-semibold drop-shadow-sm">{weatherData.main.pressure} hPa</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-white/80">UV Index</p>
-                        <p className="font-semibold drop-shadow-sm">Moderate</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-white/80">Sunrise</p>
-                        <p className="font-semibold drop-shadow-sm">
-                          {new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString([], { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-white/80">Sunset</p>
-                        <p className="font-semibold drop-shadow-sm">
-                          {new Date(weatherData.sys.sunset * 1000).toLocaleTimeString([], { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                {/* Weather Parameters Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {/* Humidity */}
+                  <Card className="backdrop-blur-lg bg-white/15 border-white/20 shadow-xl hover:bg-white/20 transition-all duration-300">
+                    <CardContent className="p-6 text-center">
+                      <Droplets className="w-8 h-8 text-blue-300 mx-auto mb-3" />
+                      <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Humidity</p>
+                      <p className="text-2xl font-bold text-white">{weatherData.main.humidity}%</p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Wind Speed */}
+                  <Card className="backdrop-blur-lg bg-white/15 border-white/20 shadow-xl hover:bg-white/20 transition-all duration-300">
+                    <CardContent className="p-6 text-center">
+                      <Wind className="w-8 h-8 text-green-300 mx-auto mb-3" />
+                      <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Wind Speed</p>
+                      <p className="text-2xl font-bold text-white">{weatherData.wind.speed} m/s</p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Visibility */}
+                  <Card className="backdrop-blur-lg bg-white/15 border-white/20 shadow-xl hover:bg-white/20 transition-all duration-300">
+                    <CardContent className="p-6 text-center">
+                      <Eye className="w-8 h-8 text-purple-300 mx-auto mb-3" />
+                      <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Visibility</p>
+                      <p className="text-2xl font-bold text-white">{(weatherData.visibility / 1000).toFixed(1)} km</p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Pressure */}
+                  <Card className="backdrop-blur-lg bg-white/15 border-white/20 shadow-xl hover:bg-white/20 transition-all duration-300">
+                    <CardContent className="p-6 text-center">
+                      <div className="text-3xl mb-3">🌡️</div>
+                      <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Pressure</p>
+                      <p className="text-2xl font-bold text-white">{weatherData.main.pressure} hPa</p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Wind Direction */}
+                  <Card className="backdrop-blur-lg bg-white/15 border-white/20 shadow-xl hover:bg-white/20 transition-all duration-300">
+                    <CardContent className="p-6 text-center">
+                      <div className="text-3xl mb-3">🧭</div>
+                      <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Wind Direction</p>
+                      <p className="text-2xl font-bold text-white">{weatherData.wind.deg || 0}°</p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Cloud Cover */}
+                  <Card className="backdrop-blur-lg bg-white/15 border-white/20 shadow-xl hover:bg-white/20 transition-all duration-300">
+                    <CardContent className="p-6 text-center">
+                      <div className="text-3xl mb-3">☁️</div>
+                      <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Cloud Cover</p>
+                      <p className="text-2xl font-bold text-white">{weatherData.clouds?.all || 0}%</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Sun Times */}
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="backdrop-blur-lg bg-white/15 border-white/20 shadow-xl">
+                    <CardContent className="p-6 text-center">
+                      <div className="text-4xl mb-3">🌅</div>
+                      <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Sunrise</p>
+                      <p className="text-xl font-bold text-white">
+                        {new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString('en-US', { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="backdrop-blur-lg bg-white/15 border-white/20 shadow-xl">
+                    <CardContent className="p-6 text-center">
+                      <div className="text-4xl mb-3">🌇</div>
+                      <p className="text-sm text-white/70 uppercase tracking-wide font-medium mb-2">Sunset</p>
+                      <p className="text-xl font-bold text-white">
+                        {new Date(weatherData.sys.sunset * 1000).toLocaleTimeString('en-US', { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
               </>
             )}
 
