@@ -2,7 +2,7 @@
 
 **Weather-Verse** is a sleek, real-time weather forecasting web app that provides accurate and visually rich weather data for any city worldwide. Powered by the OpenWeatherMap API and designed with responsive UI, Weather-Verse delivers current temperature, weather conditions, wind speed, humidity, and more in just one click.
 
-![Weather-Verse Screenshot](https://github.com/Vijay-1289/Weather-Verse/blob/main/assets/screenshot.png)
+![Weather-Verse Screenshot](https://github.com/Vijay-1289/Weather-Verse/src/Image.png)
 
 ---
 
